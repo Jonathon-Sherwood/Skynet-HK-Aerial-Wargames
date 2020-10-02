@@ -10,75 +10,135 @@
 #include <time.h> //Allows access to the computer's time for the seed
 
 using std::cout; //Global declaration to shorten the cout command namespace throughout the code
+using std::cin; //Global declaration to shorten the cout command namespace throughout the code
 using std::endl; //Global declaration to shorten the endl command namespace throughout the code
 
 int main() //Starting function containig our code found in every C++ file 
 {
 	srand(time(NULL)); //Uses computer time for random seed
+
+	int randomEnemy = rand() % 64 + 1; //Designates a random enemy location
+
+	int humanGuess; //Holds the value of the user's guess
+	int humanPing = 1; //Holds the amount of attempts per loop
+
 	int searchGridHighNumber = 64; //Sets the highest parameter for searching
 	int searchGridLowNumber = 1; //Sets the lowest parameter for searching
-	int randomEnemy = rand() % 64 + 1; //Designates a random enemy location
-	int guess = rand() % 64 + 1; //Starts Skynet with random search within parameters
-	int ping = 1; //Holds the amount of attempts per loop
-	bool testBegin = false; //Allows for test reset
+	int binaryGuess = rand() % 64 + 1; //Starts Skynet with random search within parameters
+	int binaryPing = 1; //Holds the amount of attempts per loop
 
-	cout << "Generate Random enemy location on 8x8 grid...." << endl;
-	cout << "The enemy is located at location #" << randomEnemy << " on 8x8 grid with 1-64 sectors." << endl;
-	cout << "Skynet HK-Aerial Initializing software....." << endl;
-	cout << "====================================================================" << endl;
+	int linearGuess = 1; //Starts the linear guess at the lowest number
+	int linearPing = 1; //Holds the amount of attempts per loop
+
+	int randomGuess = rand() % 64 + 1; //Starts Skynet with random search within parameters;
+	int randomPing = 1; //Holds the amount of attempts per loop
+
+	char playerResponse; //Checks for player input to play again
+
+	bool testBegin = false; //Allows for test reset
 
 	do //Entire test loop contained
 	{
-		do //Tests for higher/lower numbers each check
+		testBegin = false; //Stops the overall do-while loop from looping till the end
+
+		//HUMAN GUESSES
+		do 
 		{
-			testBegin = false; //Disables overall loop until completion
+			cout << "WHAT IS YOUR FEEBLE HUMAN GUESS." << endl;
+			cin >> humanGuess;
 
-			cout << "Skynet HK-Aerial Radar sending out ping #" << ping << endl;
-
-			if (guess < randomEnemy) //Adjusts lower parameter on low guess
+			if (humanGuess < randomEnemy) //Warns the player they guessed too low
 			{
-				cout << "The target location prediction of " << guess << " was lower than the actual enemy location of " << randomEnemy << "." << endl;
-				searchGridLowNumber = guess + 1;
-				cout << "The new searchGridLowNumber = " << searchGridLowNumber << endl;
-				cout << "====================================================================" << endl;
+				cout << "INCORRECT HUMAN. " << humanGuess << " IS TOO LOW.\n" << endl;
 			}
-			else if (guess > randomEnemy) //Adjusts higher parameter on high guess
+			else if (humanGuess > randomEnemy) //Warns the player they gussed too high
 			{
-				cout << "The target location prediction of " << guess << " was higher than the actual enemy location of " << randomEnemy << "." << endl;
-				searchGridHighNumber = guess;
-				cout << "The new searchGridHighNumber = " << searchGridHighNumber << endl;
-				cout << "====================================================================" << endl;
-			}
-			else //Cancels entire loop if guessed on first ping
+				cout << "INCORRECT HUMAN. " << humanGuess << " IS TOO HIGH.\n" << endl;
+			} 
+			else //Cancels entire loop if HUMAN guessed on first ping
 			{
 				break;
 			}
 
-			//Starts loop over with new guess based on changes
-			guess = ((searchGridHighNumber - searchGridLowNumber) / 2) + searchGridLowNumber;
+			humanPing++; //Adds up attempts per loop
 
-			++ping; //Increments up the number of guesses
+		} while (humanGuess != randomEnemy); //Ends loop on successful guess
 
-		} while ((guess != randomEnemy)); //Continues loop until correct guess
-
-		if (guess == randomEnemy) //Resets game on input after correct guess
+		//BINARY DRONE
+		do //Tests for higher/lower numbers each check using Binary Search
 		{
-			cout << "Skynet HK-Aerial Radar sending out ping #" << ping << endl;
-			cout << "Enemy was hiding at location #" << randomEnemy << endl;
-			cout << "Target was found at location #" << guess << endl;
-			cout << "Skynet HK-Aerial Software took " << ping << " predictions to find the enemy location on a grid size of 8x8 (64)." << endl;
-			cout << "Press any key to continue . . . ";
+			if (binaryGuess < randomEnemy) //Adjusts lower parameter on low binaryGuess
+			{
+				searchGridLowNumber = binaryGuess + 1;
+			}
+			else if (binaryGuess > randomEnemy) //Adjusts higher parameter on high binaryGuess
+			{
+				searchGridHighNumber = binaryGuess;
+			}
+			else //Cancels entire loop if binaryGuessed on first attempt
+			{
+				break;
+			}
 
-			std::cin.get(); //Awaits user return
-			system("CLS"); //Clears screen
+			//Starts loop over with new binaryGuess based on changes
+			binaryGuess = ((searchGridHighNumber - searchGridLowNumber) / 2) + searchGridLowNumber;
 
-			//Resets all variables for next test
-			testBegin = true;
-			searchGridHighNumber = 64;
-			searchGridLowNumber = 1;
-			randomEnemy = rand() % 64 + 1;
-			guess = rand() % 64 + 1;
-			ping = 1;
+			++binaryPing; //Adds up attempts per loop
+
+		} while ((binaryGuess != randomEnemy)); //Ends loop on successful guess
+
+		//LINEAR DRONE
+		do //Counts up one guess at a time
+		{
+			linearGuess++;
+			linearPing++; //Adds up attempts per loop
+		} while (linearGuess != randomEnemy); //Ends loop on successful guess
+
+		//RANDOM DRONE
+		do //Randomizes guess each loop
+		{
+			randomGuess = rand() % 64 + 1;
+			randomPing++;//Adds up attempts per loop
+		} while (randomGuess != randomEnemy); //Ends loop on successful guess
+
+		if (humanGuess == randomEnemy) //Resets game on input after correct binaryGuess
+		{
+			cin.ignore(); //Allows for new user input
+
+			cout << "\nALL DRONES HAVE DISCOVERED THE ENEMY HIDING AT " << randomEnemy << ".\n" << endl;
+			cout << "IT APPEARS IT TOOK THE FEEBLE HUMAN " << humanPing << " ATTEMPTS TO FIND THE ENEMY." << endl;
+			cout << "IT TOOK THE BINARY DRONE " << binaryPing << " ATTEMPTS TO FIND THE ENEMY." << endl;
+			cout << "IT TOOK THE PATHETIC LINEAR DRONE " << linearPing << " ATTEMPTS TO FIND THE ENEMY." << endl;
+			cout << "IT TOOK THE MALFUNCTIONING RANDOM DRONE " << randomPing << " ATTEMPTS TO FIND THE ENEMY." << endl;
+			cout << "\nDO YOU WISH TO TEST AGAIN. Y/N ";
+
+			do //Repeats the question until a valid input
+			{
+				cin >> playerResponse;
+				if (playerResponse == 'y')  //Resets all variables for next test
+				{
+					system("CLS"); //Clears screen
+					testBegin = true;
+					searchGridHighNumber = 64;
+					searchGridLowNumber = 1;
+					randomEnemy = rand() % 64 + 1;
+					binaryGuess = rand() % 64 + 1;
+					linearGuess = 1;
+					randomGuess = rand() % 64 + 1;
+					binaryPing = 1;
+					humanPing = 1;
+					randomPing = 1;
+					linearPing = 1;
+				}
+				else if(playerResponse == 'n') //Exits program on user input
+				{
+					exit(0);
+				}
+				else 
+				{
+					cout << "THAT IS NOT A VALID INPUT. Y/N ";
+				}
+			} while (playerResponse != 'n' && playerResponse != 'y'); //Exits the loop on a valid input
 		}
 	} while (testBegin); //Returns loop to the beginning of the entire test procedure
 
